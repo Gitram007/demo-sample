@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/api_services.dart';
 
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
+class HomePage extends StatelessWidget {
   final List<Map<String, dynamic>> screens = [
     {'title': 'Materials', 'route': '/materials'},
     {'title': 'product', 'route': '/product'},
@@ -14,20 +8,6 @@ class _HomePageState extends State<HomePage> {
     {'title': 'Production Log', 'route': '/production'},
     {'title': 'Reports', 'route': '/reports'},
   ];
-  List<dynamic> notes = [];
-
-  @override
-  void initState() {
-    super.initState();
-    loadNotes();
-  }
-
-  void loadNotes() async {
-    final fetchedNotes = await fetchNotes();
-    setState(() {
-      notes = fetchedNotes;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

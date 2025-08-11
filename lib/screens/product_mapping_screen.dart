@@ -28,9 +28,9 @@ class _MappingScreenState extends State<MappingScreen> {
 
   Future<void> loadAll() async {
     try {
-      final fetchedProducts = await ApiService.getProducts();
-      final fetchedMaterials = await ApiService.getMaterials();
-      final fetchedMappings = await ApiService.getMappings();
+      final fetchedProducts = await ApiServiceLocal.getProducts();
+      final fetchedMaterials = await ApiServiceLocal.getMaterials();
+      final fetchedMappings = await ApiServiceLocal.getMappings();
 
       setState(() {
         products = fetchedProducts;
@@ -58,7 +58,7 @@ class _MappingScreenState extends State<MappingScreen> {
     if (selectedProduct != null &&
         selectedMaterial != null &&
         quantity != null) {
-      await ApiService.createMapping(ProductMaterial(
+      await ApiServiceLocal.createMapping(ProductMaterial(
         product: selectedProduct!,
         material: selectedMaterial!,
         quantityPerUnit: quantity,
@@ -143,7 +143,7 @@ class _MappingScreenState extends State<MappingScreen> {
                   trailing: IconButton(
                     icon: Icon(Icons.delete),
                     onPressed: () async {
-                      await ApiService.deleteMapping(m.id!);
+                      await ApiServiceLocal.deleteMapping(m.id!);
                       loadAll();
                     },
                   ),
