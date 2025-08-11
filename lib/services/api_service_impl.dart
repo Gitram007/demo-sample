@@ -6,7 +6,7 @@ import '../models/product_model.dart';
 import '../models/product_material_model.dart';
 import '../models/production_log_model.dart';
 
-class ApiService {
+class ApiServiceImpl {
   static const baseUrl = 'http://127.0.0.1:8000/api';
 
   // Materials

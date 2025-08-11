@@ -6,7 +6,7 @@ import '../models/material_model.dart';
 import '../models/product_material_model.dart';
 
 
-class ApiService {
+class ApiServiceLocal {
   static Future<List<Product>> getProducts() async {
     final jsonString = await rootBundle.loadString('assets/products.json');
     final List<dynamic> jsonData = jsonDecode(jsonString);
