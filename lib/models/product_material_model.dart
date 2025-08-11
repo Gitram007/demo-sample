@@ -26,8 +26,9 @@ class ProductMaterial {
 
   /// To JSON for sending to API (IDs only)
   Map<String, dynamic> toJson() => {
-    'product': product.id,
-    'material': material.id,
+    'id': id,
+    'product': product.toJson(),
+    'material': material.toJson(),
     'quantity_per_unit': quantityPerUnit,
   };
 

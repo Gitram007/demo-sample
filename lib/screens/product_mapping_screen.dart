@@ -59,6 +59,7 @@ class _MappingScreenState extends State<MappingScreen> {
         selectedMaterial != null &&
         quantity != null) {
       await ApiServiceLocal.createMapping(ProductMaterial(
+        id: DateTime.now().millisecondsSinceEpoch,
         product: selectedProduct!,
         material: selectedMaterial!,
         quantityPerUnit: quantity,
