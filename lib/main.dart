@@ -54,7 +54,6 @@ import 'screens/product_screen.dart';
 import 'screens/product_mapping_screen.dart';
 import 'screens/production_log_screen.dart';
 import 'screens/report_screen.dart';
-import 'screens/some_dynamic_screen.dart';
 
 void main() {
   runApp(MaterialTrackerApp());
@@ -74,25 +73,6 @@ class MaterialTrackerApp extends StatelessWidget {
         '/mapping': (_) => MappingScreen(),
         '/production': (_) => ProductionLogScreen(),
         '/reports': (_) => ReportScreen(),
-      },
-
-      // Handle dynamic routing (with arguments)
-
-      onGenerateRoute: (settings) {
-        if (settings.name == '/dynamicExample') {
-          final args = settings.arguments as Map<String, dynamic>?;
-          return MaterialPageRoute(
-            builder: (_) => SomeDynamicScreen(data: args?['data']),
-          );
-        }
-
-        // Unknown route fallback (optional)
-        return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: Text('404')),
-            body: Center(child: Text('Page not found')),
-          ),
-        );
       },
     );
   }

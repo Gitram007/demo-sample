@@ -20,14 +20,15 @@ class ProductMaterial {
       id: json['id'],
       product: Product.fromJson(json['product']),
       material: MaterialItem.fromJson(json['material']),
-      quantityPerUnit: (json['quantity_per_unit'] as num).toDouble(),
+      quantityPerUnit: (json['quantity_per_unit'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
   /// To JSON for sending to API (IDs only)
   Map<String, dynamic> toJson() => {
-    'product': product.id,
-    'material': material.id,
+    'id': id,
+    'product': product.toJson(),
+    'material': material.toJson(),
     'quantity_per_unit': quantityPerUnit,
   };
 

@@ -55,17 +55,24 @@ class _MappingScreenState extends State<MappingScreen> {
 
   void addMapping() async {
     final quantity = double.tryParse(qtyController.text);
-    if (selectedProduct != null &&
-        selectedMaterial != null &&
-        quantity != null) {
-      await ApiServiceLocal.createMapping(ProductMaterial(
-        product: selectedProduct!,
-        material: selectedMaterial!,
-        quantityPerUnit: quantity,
-      ));
-      qtyController.clear();
-      loadAll();
+    if (selectedProduct == null || selectedMaterial == null || quantity == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select a product, a material, and enter a valid quantity.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
     }
+
+    await ApiServiceLocal.createMapping(ProductMaterial(
+      id: DateTime.now().millisecondsSinceEpoch,
+      product: selectedProduct!,
+      material: selectedMaterial!,
+      quantityPerUnit: quantity,
+    ));
+    qtyController.clear();
+    loadAll();
   }
 
   @override

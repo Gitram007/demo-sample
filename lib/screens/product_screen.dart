@@ -1,7 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:demo_sample/models/product_model.dart';
+import 'package:demo_sample/services/api_service_local.dart';
 
 class ProductScreen extends StatefulWidget {
   @override
@@ -20,38 +19,30 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Future<void> loadProducts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? data = prefs.getString('products');
-    if (data != null) {
-      List decoded = jsonDecode(data);
-      setState(() {
-        products = decoded.map((e) => Product.fromJson(e)).toList();
-      });
-    }
+    final fetchedProducts = await ApiServiceLocal.getProducts();
+    setState(() {
+      products = fetchedProducts;
+    });
   }
 
-  Future<void> saveProducts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final List jsonList = products.map((e) => e.toJson()).toList();
-    await prefs.setString('products', jsonEncode(jsonList));
-  }
-
-  void addOrUpdateProduct() {
+  void addOrUpdateProduct() async {
     String name = nameController.text.trim();
     if (name.isEmpty) return;
 
+    if (editingIndex != null) {
+      products[editingIndex!] =
+          Product(id: products[editingIndex!].id, name: name);
+    } else {
+      int newId = DateTime.now().millisecondsSinceEpoch;
+      products.add(Product(id: newId, name: name));
+    }
+
+    await ApiServiceLocal.saveProducts(products);
+    nameController.clear();
     setState(() {
-      if (editingIndex != null) {
-        products[editingIndex!] =
-            Product(id: products[editingIndex!].id, name: name);
-        editingIndex = null;
-      } else {
-        int newId = DateTime.now().millisecondsSinceEpoch;
-        products.add(Product(id: newId, name: name));
-      }
-      saveProducts();
-      nameController.clear();
+      editingIndex = null;
     });
+    loadProducts(); // Refresh the list
   }
 
   void editProduct(int index) {
@@ -61,11 +52,10 @@ class _ProductScreenState extends State<ProductScreen> {
     });
   }
 
-  void deleteProduct(int index) {
-    setState(() {
-      products.removeAt(index);
-      saveProducts();
-    });
+  void deleteProduct(int index) async {
+    products.removeAt(index);
+    await ApiServiceLocal.saveProducts(products);
+    loadProducts(); // Refresh the list
   }
 
   @override

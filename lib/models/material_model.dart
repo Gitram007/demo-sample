@@ -36,11 +36,12 @@ class MaterialItem {
   factory MaterialItem.fromJson(Map<String, dynamic> json) => MaterialItem(
     id: json['id'],
     name: json['name'],
-    quantity: json['quantity'].toDouble(),
+    quantity: (json['quantity'] as num?)?.toDouble() ?? 0.0,
     unit: json['unit'],
   );
 
   Map<String, dynamic> toJson() => {
+    'id': id,
     'name': name,
     'quantity': quantity,
     'unit': unit,

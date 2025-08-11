@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:demo_sample/models/material_model.dart';
+import 'package:demo_sample/services/api_service_local.dart';
 
 class MaterialScreen extends StatefulWidget {
   @override
@@ -8,7 +8,7 @@ class MaterialScreen extends StatefulWidget {
 }
 
 class _MaterialScreenState extends State<MaterialScreen> {
-  List<Map<String, dynamic>> materials = [];
+  List<MaterialItem> materials = [];
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController qtyController = TextEditingController();
@@ -22,24 +22,14 @@ class _MaterialScreenState extends State<MaterialScreen> {
     loadMaterials();
   }
 
-  // Load from SharedPreferences
   Future<void> loadMaterials() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? data = prefs.getString('materials');
-    if (data != null) {
-      setState(() {
-        materials = List<Map<String, dynamic>>.from(jsonDecode(data));
-      });
-    }
+    final fetchedMaterials = await ApiServiceLocal.getMaterials();
+    setState(() {
+      materials = fetchedMaterials;
+    });
   }
 
-  // Save to SharedPreferences
-  Future<void> saveMaterials() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('materials', jsonEncode(materials));
-  }
-
-  void addOrUpdateMaterial() {
+  void addOrUpdateMaterial() async {
     String name = nameController.text.trim();
     String qtyText = qtyController.text.trim();
     String unit = unitController.text.trim();
@@ -49,41 +39,46 @@ class _MaterialScreenState extends State<MaterialScreen> {
     double? quantity = double.tryParse(qtyText);
     if (quantity == null) return;
 
-    final newMaterial = {
-      'name': name,
-      'quantity': quantity,
-      'unit': unit,
-    };
+    if (editingIndex != null) {
+      materials[editingIndex!] = MaterialItem(
+        id: materials[editingIndex!].id,
+        name: name,
+        quantity: quantity,
+        unit: unit,
+      );
+    } else {
+      materials.add(MaterialItem(
+        id: DateTime.now().millisecondsSinceEpoch,
+        name: name,
+        quantity: quantity,
+        unit: unit,
+      ));
+    }
 
+    await ApiServiceLocal.saveMaterials(materials);
+    nameController.clear();
+    qtyController.clear();
+    unitController.clear();
     setState(() {
-      if (editingIndex != null) {
-        materials[editingIndex!] = newMaterial;
-        editingIndex = null;
-      } else {
-        materials.add(newMaterial);
-      }
-      saveMaterials();
-      nameController.clear();
-      qtyController.clear();
-      unitController.clear();
+      editingIndex = null;
     });
+    loadMaterials(); // Refresh list
   }
 
   void editMaterial(int index) {
     final material = materials[index];
-    nameController.text = material['name'];
-    qtyController.text = material['quantity'].toString();
-    unitController.text = material['unit'];
+    nameController.text = material.name;
+    qtyController.text = material.quantity.toString();
+    unitController.text = material.unit;
     setState(() {
       editingIndex = index;
     });
   }
 
-  void deleteMaterial(int index) {
-    setState(() {
-      materials.removeAt(index);
-      saveMaterials();
-    });
+  void deleteMaterial(int index) async {
+    materials.removeAt(index);
+    await ApiServiceLocal.saveMaterials(materials);
+    loadMaterials(); // Refresh list
   }
 
   @override
@@ -105,12 +100,12 @@ class _MaterialScreenState extends State<MaterialScreen> {
                 ],
                 rows: materials.asMap().entries.map((entry) {
                   int index = entry.key;
-                  Map<String, dynamic> material = entry.value;
+                  MaterialItem material = entry.value;
                   return DataRow(
                     cells: [
-                      DataCell(Text(material['name'])),
-                      DataCell(Text(material['quantity'].toString())),
-                      DataCell(Text(material['unit'])),
+                      DataCell(Text(material.name)),
+                      DataCell(Text(material.quantity.toString())),
+                      DataCell(Text(material.unit)),
                       DataCell(Row(
                         children: [
                           IconButton(
