@@ -9,6 +9,7 @@ import '../models/product_material_model.dart';
 
 class ApiServiceLocal {
   static const String _productsKey = 'products';
+  static const String _materialsKey = 'materials';
   static const String _mappingsKey = 'mappings';
 
   static Future<List<Product>> getProducts() async {
@@ -34,9 +35,25 @@ class ApiServiceLocal {
   }
 
   static Future<List<MaterialItem>> getMaterials() async {
-    final jsonString = await rootBundle.loadString('assets/materials.json');
-    final List<dynamic> jsonData = jsonDecode(jsonString);
-    return jsonData.map((json) => MaterialItem.fromJson(json)).toList();
+    final prefs = await SharedPreferences.getInstance();
+    final String? data = prefs.getString(_materialsKey);
+
+    if (data != null) {
+      final List decoded = jsonDecode(data);
+      return decoded.map((e) => MaterialItem.fromJson(e)).toList();
+    } else {
+      // Load from asset, save to prefs, then return
+      final jsonString = await rootBundle.loadString('assets/materials.json');
+      await prefs.setString(_materialsKey, jsonString);
+      final List<dynamic> jsonData = jsonDecode(jsonString);
+      return jsonData.map((json) => MaterialItem.fromJson(json)).toList();
+    }
+  }
+
+  static Future<void> saveMaterials(List<MaterialItem> materials) async {
+    final prefs = await SharedPreferences.getInstance();
+    final List jsonList = materials.map((e) => e.toJson()).toList();
+    await prefs.setString(_materialsKey, jsonEncode(jsonList));
   }
 
   static Future<List<ProductMaterial>> getMappings() async {

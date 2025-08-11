@@ -20,7 +20,7 @@ class ProductMaterial {
       id: json['id'],
       product: Product.fromJson(json['product']),
       material: MaterialItem.fromJson(json['material']),
-      quantityPerUnit: (json['quantity_per_unit'] as num).toDouble(),
+      quantityPerUnit: (json['quantity_per_unit'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
